@@ -22,26 +22,28 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
 end)
 
 
-Citizen.CreateThread(function()
+CreateThread(function()
     -- Player near location? Is player in a police car?
     while (true) do
-        local distance = Vdist2(GetEntityCoords(PlayerPedId(), false), boostLocation)
-        if distance < 8 then
-            if IsPedInAnyPoliceVehicle(PlayerPedId(), true) then
-                DrawText3Ds(454.53, -1020.79, 28.32, "[~g~E~w~] - Emergency Boost")
-            end 
-        end
+        local ped = PlayerPedId()
+        local pedCoords = GetEntityCoords(ped)
+        local distance = #(pedCoords - boostLocation)
 
         if distance < 8 then
-            if distance < 8 and IsControlJustReleased(0, 38) then
-                if QBCore.Functions.GetPlayerData().job.name == 'police' then
-                    QBCore.Functions.Notify("Your cruiser now goes fast!", 'success')
-                    SetVehicleEnginePowerMultiplier(GetVehiclePedIsIn(PlayerPedId(), true), 55.0) -- Change power increase here (55 is pretty high, will depend on vehicles)
-                else
-                    QBCore.Functions.Notify("You need to be a cop!", 'error')
-                end
+            if IsPedInAnyPoliceVehicle(ped) then
+                DrawText3Ds(454.53, -1020.79, 28.32, "[~g~E~w~] - Emergency Boost")
+
+                if IsControlJustReleased(0, 38) then
+                    if QBCore.Functions.GetPlayerData().job.name == 'police' then
+                        QBCore.Functions.Notify("Your cruiser now goes fast!", 'success')
+                        SetVehicleEnginePowerMultiplier(GetVehiclePedIsIn(ped, true), 55.0) -- Change power increase here (55 is pretty high, will depend on vehicles)
+                    else
+                        QBCore.Functions.Notify("You need to be a cop!", 'error')
+                    end
+                end 
             end 
+            Wait(0)
         end
-        Citizen.Wait(10)
+        Wait(100)
     end 
 end)
